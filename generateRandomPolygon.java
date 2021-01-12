@@ -21,18 +21,18 @@ public class generateRandomPolygon
         double var ;
         int scaleX = 1 ;
         int scaleY = 1 ;
-        boolean GRPCH = true ;
+        int algorithmChoice ;
         
         Polygon randomPolygon ;
         
         System.out.println("*** Random Polygon Generation ***") ;
-        System.out.println("(1) Quick Generation (2) Bulk Generation (3) Advanced Generation (0) Quit") ;
+        System.out.println("(1) Quick Generation (2) Greedy Generation (3) Approximate Generation (4) Star Generation (5) Bulk Generation (6) Advanced Generation (0) Quit") ;
         choice = scanner.nextInt() ;
         
-        while(choice < 0 || choice > 3)
+        while(choice < 0 || choice > 6)
         {
             System.out.println("Invalid option.") ;
-            System.out.println("(1) Quick Generation (2) Bulk Generation (3) Advanced (0) Quit") ;
+            System.out.println("(1) Quick Generation (2) Greedy Generation (3) Approximate Generation (4) Star Generation (5) Bulk Generation (6) Advanced Generation (0) Quit") ;
             choice = scanner.nextInt() ;
         }
         switch(choice)
@@ -55,10 +55,59 @@ public class generateRandomPolygon
                 
                 System.out.println("Finished") ;
                 break ;
-            //Bulk generation makes a user defined number of polygons using the GRP_CH
-            //heuristic with x and y scale equal to the number of vertices. Outputs
+            //Greedy generation uses a modified version of the GRP_CH heuristic to
+            //generate a polygon with a user defined number of vertices. It should run
+            //faster, but some amount of randomness is lost.
+            case 2 :
+                System.out.println("How many vertices?") ;
+                choice = scanner.nextInt() ;
+                choice = Math.max(3 , choice) ;
+                
+                do
+                {
+                    randomPolygon = Polygon.generatePolygonGreedy(choice , choice , choice) ;
+                }while(randomPolygon == null) ;
+
+                OutputFile.polygonToGBBFile(randomPolygon , true , 1);
+                OutputFile.polygonToGBBFile(randomPolygon , false , 1);
+                
+                System.out.println("Finished") ;
+                break ;
+            //Approximate generation uses a modified version of the GRP_CH heuristic to
+            //generate a polygon with a number of vertices close to the number defined
+            //by the user. Typically the final polygon has between 1% and 3% fewer
+            //vertices. However, it does run much faster than the previous two methods.
+            case 3 :
+                System.out.println("How many vertices?") ;
+                choice = scanner.nextInt() ;
+                choice = Math.max(3 , choice) ;
+                
+                randomPolygon = Polygon.generatePolygonApproximate(choice , choice , choice) ;
+
+                OutputFile.polygonToGBBFile(randomPolygon , true , 1);
+                OutputFile.polygonToGBBFile(randomPolygon , false , 1);
+                
+                System.out.println("Finished") ;
+                break ;
+            //Star generation generates star-shaped polygons with a user defined number of vertices. 
+            //They are not very interesting, but the algorithm is extremely fast and 
+            //capable of handling very large polygons easily.
+            case 4 :
+                System.out.println("How many vertices?") ;
+                choice = scanner.nextInt() ;
+                choice = Math.max(3 , choice) ;
+                
+                randomPolygon = Polygon.generatePolygonStar(choice , choice , choice) ;
+
+                OutputFile.polygonToGBBFile(randomPolygon , true , 1);
+                OutputFile.polygonToGBBFile(randomPolygon , false , 1);
+                
+                System.out.println("Finished") ;
+                break ;      
+            //Bulk generation makes a user defined number of polygons using a user defined
+            //algorithm with x and y scale equal to the number of vertices. Outputs
             //files based on the user's selection.
-            case 2 : 
+            case 5 : 
                 System.out.println("How many to generate?") ;
                 choice = scanner.nextInt() ;
                 amount = Math.max(2 , choice) ;
@@ -70,11 +119,39 @@ public class generateRandomPolygon
                 System.out.println("Display Labels? (y) Yes (n) No (b) Both") ;
                 choiceChar = scanner.next().charAt(0) ;
                 
+                System.out.println("Which algorithm? (1) Standard (2) Greedy (3) Approximate (4) Star (5) Line") ;
+                algorithmChoice = scanner.nextInt() ;
+                if(algorithmChoice < 1 || algorithmChoice > 5)
+                {
+                    algorithmChoice = 1 ;
+                }
+                
                 for(int i = 1 ; i <= amount ; i++)
                 {
                     do
                     {
-                        randomPolygon = Polygon.generatePolygon(choice , choice , choice) ;
+                        switch(algorithmChoice)
+                        {
+                            case 1:
+                                randomPolygon = Polygon.generatePolygon(choice , choice , choice) ;
+                                break ;
+                            case 2:
+                                randomPolygon = Polygon.generatePolygonGreedy(choice , choice , choice) ;
+                                break ;
+                            case 3:
+                                randomPolygon = Polygon.generatePolygonApproximate(choice , choice , choice) ;
+                                break ;
+                            case 4:
+                                randomPolygon = Polygon.generatePolygonStar(choice , choice , choice) ;
+                                break ;
+                            case 5 :
+                                randomPolygon = Polygon.generatePolygonAlternate(choice , choice) ;
+                                break ;
+                            default :
+                                System.out.println("Something may have gone wrong picking an algorithm. Using the default") ;
+                                randomPolygon = Polygon.generatePolygon(choice , choice , choice) ;
+                                break ;
+                        }  
                     }while(randomPolygon == null) ;
 
                     switch (choiceChar)
@@ -96,7 +173,7 @@ public class generateRandomPolygon
             //Advanced generation allows the user to choose how many polygons to create,
             //the method of generation, x and y scale, variation in the number of vertices
             //(bulk only) and what kinds of files to output.
-            case 3 :
+            case 6 :
                 System.out.println("Bulk Generate? (y)/(n)") ;
                 choiceChar = scanner.next().charAt(0) ;
                 switch (choiceChar)
@@ -129,17 +206,13 @@ public class generateRandomPolygon
                 choice = scanner.nextInt() ;
                 scaleY = Math.max(1 , choice) ;
                 
-                System.out.println("Generation Method? (g) GRP_CH (h) Human") ;
-                choiceChar = scanner.next().charAt(0) ;
-                switch (choiceChar)
+                System.out.println("Which algorithm? (1) Standard (2) Greedy (3) Approximate (4) Star (5) Line") ;
+                algorithmChoice = scanner.nextInt() ;
+                if(algorithmChoice < 1 || algorithmChoice > 5)
                 {
-                    case 'h' :
-                        GRPCH = false ;
-                        break ;
-                    default :
-                        GRPCH = true ;
-                        break ;
+                    algorithmChoice = 1 ;
                 }
+                
                 System.out.println("Display labels? (y) Yes (n) No (b) Both") ;
                 choiceChar = scanner.next().charAt(0) ;
                 
@@ -159,14 +232,28 @@ public class generateRandomPolygon
                         
                         do
                         {
-                            if(GRPCH)
+                            switch(algorithmChoice)
                             {
-                                randomPolygon = Polygon.generatePolygon(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
-                            }
-                            else
-                            {
-                                randomPolygon = Polygon.generatePolygonAlternate(Math.max((int)(verticies + var) , 3) , Math.max(scaleX , scaleY)) ;
-                            }
+                                case 1:
+                                    randomPolygon = Polygon.generatePolygon(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
+                                    break ;
+                                case 2:
+                                    randomPolygon = Polygon.generatePolygonGreedy(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
+                                    break ;
+                                case 3:
+                                    randomPolygon = Polygon.generatePolygonApproximate(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
+                                    break ;
+                                case 4:
+                                    randomPolygon = Polygon.generatePolygonStar(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
+                                    break ;
+                                case 5 :
+                                    randomPolygon = Polygon.generatePolygonAlternate(Math.max((int)(verticies + var) , 3) , Math.max(scaleX , scaleY)) ;
+                                    break ;
+                                default :
+                                    System.out.println("Something may have gone wrong picking an algorithm. Using the default") ;
+                                    randomPolygon = Polygon.generatePolygon(Math.max((int)(verticies + var) , 3) , scaleX , scaleY) ;
+                                    break ;
+                            }  
                         }while(randomPolygon == null) ;
 
                         switch (choiceChar)
@@ -188,14 +275,28 @@ public class generateRandomPolygon
                 {
                     do
                     {
-                        if(GRPCH)
-                            {
+                        switch(algorithmChoice)
+                        {
+                            case 1:
                                 randomPolygon = Polygon.generatePolygon(verticies , scaleX , scaleY) ;
-                            }
-                            else
-                            {
+                                break ;
+                            case 2:
+                                randomPolygon = Polygon.generatePolygonGreedy(verticies , scaleX , scaleY) ;
+                                break ;
+                            case 3:
+                                randomPolygon = Polygon.generatePolygonApproximate(verticies , scaleX , scaleY) ;
+                                break ;
+                            case 4:
+                                randomPolygon = Polygon.generatePolygonStar(verticies , scaleX , scaleY) ;
+                                break ;
+                            case 5 :
                                 randomPolygon = Polygon.generatePolygonAlternate(verticies , Math.max(scaleX , scaleY)) ;
-                            }
+                                break ;
+                            default :
+                                System.out.println("Something may have gone wrong picking an algorithm. Using the default") ;
+                                randomPolygon = Polygon.generatePolygon(verticies , scaleX , scaleY) ;
+                                break ;
+                        }  
                     }while(randomPolygon == null) ;
                     
                     switch (choiceChar)
