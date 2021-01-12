@@ -15,6 +15,8 @@ Simply run the file through the command line to produce geogebra compatable file
 Upon running the user will be prompted with 7 options: Quick Generation, Greedy Generation, Approximate Generation,
 Star Generation, Bulk Generation, Advanced Generation, and Quit.
 
+***For the program to correctly create the output files, the geogebra.xml, geogebra_defaults2d.xml, geogebra_defaults3d.xml, geogebra_thumbnail.png, showLabelsFalse, and showLablesTrue files/folders need to be in the same directory as the JAR file.***
+
 Quick generation makes a polygon with a user defined number of vertices using the GRP_CH heuristic with the x and y scale 
 equal to the number of vertices. Outputs one file with labels and one without.
 
