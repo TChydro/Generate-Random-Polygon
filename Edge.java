@@ -38,9 +38,12 @@ public class Edge
         this.b = new Point(by , by) ;
     }
     
-    //Takes an array of points and constructs an arry of edges.
-    //This is done by creating an edge between each consecutive point in the array.
-    //ex: Points : a , b , c , d -> Edges : ab , bc , cd , da
+    /**
+     * @param points an array of points.
+     * @return a list of edges such that there is an edge connecting each consecutive
+     * point in the original array. There is also an edge connecting the last and first
+     * entry of the array.
+     */
     public static ArrayList makeEdgeList(Point[] points)
     {
         ArrayList<Edge> edges = new ArrayList<>() ;
@@ -55,9 +58,12 @@ public class Edge
         return edges ;
     }
         
-    //A helper function for the full visible edges method. Checks to see if the given
-    //edge intersects any edges in the hull.
-    //n needs to be the index of the edge in the hull list to work properly.
+    /**
+     * @param hull a set of edges that makes up a polygon.
+     * @param n the index of the edge in the hull list whose visibility is being checked.
+     * @return True if the edge it is called on does not intersect any edges in the
+     * hull, false otherwise.
+     */
     public boolean isVisible(ArrayList<Edge> hull , int n)
     {
         Edge currentEdge ;
@@ -82,7 +88,11 @@ public class Edge
         return true ;
     }
     
-    //Returns the point of intersection of two edges.
+    /**
+     * @param e an edge
+     * @return The point of intersection between the edge the method is called on and the
+     * input edge. If there is no intersect, then it returns null.
+     */
     public Point intersection(Edge e)
     {
         Point a = this.a ;
@@ -121,16 +131,22 @@ public class Edge
         return new Point(x , y) ;
     }
     
-    //Returns the determinant of the 2x2 matrix
-    // [x1 x2]
-    // [y1 y2]
-    // A helper function for the intersection method.
+    /**
+     * @param x1
+     * @param x2
+     * @param y1
+     * @param y2
+     * @return The determinant of the 2x2 matrix with rows x1 x2 and y1 y2. Used as a
+     * helper function for finding the intersection.
+     */
     public static double determ(double x1 , double x2 , double y1 , double y2)
     {
         return (x1 * y2 - y1 * x2) ;
     }
     
-    //Formats edges as ((ax , ay) , (bx , by))
+    /**
+     * @return The edge formated ((xa,ya),(xb,yb)).
+     */
     @Override
     public String toString()
     {
